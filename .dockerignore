@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.git/
+.gitignore
+_build/
+assets/
+*.log
+webapp/qa_*
+webapp/fix*
+webapp/server_log.txt
+webapp/server_stop.txt
+webapp/garbage_gbk.csv
+webapp/huge_field.csv

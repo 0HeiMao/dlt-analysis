@@ -68,6 +68,30 @@ app = FastAPI(
 )
 
 
+@app.on_event("startup")
+def bootstrap_dataset() -> None:
+    """启动时自动载入内置模拟数据集.
+
+    数据集保存在进程内存中. 部署到云托管后实例可能缩容到零, 重启即丢状态;
+    启动时自动载入可保证任何一次冷启动之后页面都能直接分析, 不必手动点击载入.
+    载入失败不阻断服务启动, 用户仍可通过 /api/dataset/sample 手动载入.
+    """
+    try:
+        raw_df = dt.build_sample_dataframe()
+        clean_df, report = dt.clean_records(raw_df)
+    except Exception as exc:  # 载入失败要留下证据, 不能静默吞掉
+        print(f"[warn] 启动时自动载入内置数据集失败: {exc}", file=sys.stderr)
+        return
+    if len(clean_df) < 1:
+        print("[warn] 启动时内置数据集清洗后为空, 跳过自动载入", file=sys.stderr)
+        return
+    state.clean_df = clean_df
+    state.report = report
+    state.raw_rows = int(report["original_rows"])
+    state.name = "内置模拟数据集 (600 期, 模拟数据, 非真实开奖记录)"
+    print(f"[info] 已自动载入内置模拟数据集 ({len(clean_df)} 期)", file=sys.stderr)
+
+
 # --------------------------------------------------------------------------- #
 # 1. JSON 序列化 (numpy/pandas 类型 -> 原生 Python 类型)
 # --------------------------------------------------------------------------- #
@@ -371,10 +395,16 @@ def main() -> int:
         prog="server.py",
         description="dlt_tool 本地 Web 服务 (开奖为独立随机事件, 不预测未来结果)。",
     )
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT,
-                        help=f"监听端口 (默认 {DEFAULT_PORT})")
-    parser.add_argument("--host", type=str, default="127.0.0.1",
-                        help="监听地址 (默认 127.0.0.1, 仅本机访问)")
+    # 环境变量作默认值: 云托管等平台会注入 PORT, 容器需监听 0.0.0.0 才能被探到.
+    # 本机直接跑时两者都不存在, 行为不变 (127.0.0.1:8765).
+    parser.add_argument(
+        "--port", type=int, default=int(os.environ.get("PORT", DEFAULT_PORT)),
+        help=f"监听端口 (默认 {DEFAULT_PORT}, 可被环境变量 PORT 覆盖)",
+    )
+    parser.add_argument(
+        "--host", type=str, default=os.environ.get("HOST", "127.0.0.1"),
+        help="监听地址 (默认 127.0.0.1 仅本机; 容器部署需 0.0.0.0, 可用 HOST 覆盖)",
+    )
     args = parser.parse_args()
 
     import uvicorn
