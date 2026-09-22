@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>超级大乐透历史数据分析工具（本地版）</title>
+  <link rel="icon" type="image/svg+xml" href="icons/lucky-star-spark.svg">
+  <link rel="apple-touch-icon" href="icons/lucky-star-badge.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 顶部固定横幅: 每个 tab 都可见 -->
+  <header class="banner">
+    <div class="banner-inner">
+      <div class="banner-title">
+        <img class="logo-icon" src="icons/lucky-star-spark.svg" alt="幸运星" width="30" height="30">
+        <span class="logo">DLT</span>
+        <h1>超级大乐透历史数据分析工具 <small>本地版</small></h1>
+      </div>
+      <p class="banner-warn">开奖为独立随机事件，本工具不预测未来结果。</p>
+      <p class="banner-notice">理性购彩提示：彩票是娱乐消费而非投资；中奖概率与投注金额、方式、号码选择无关；
+        未成年人不得购彩；请量力而行，切勿沉迷。</p>
+      <div class="ds-status" id="ds-status">正在检查服务状态…</div>
+    </div>
+  </header>
+
+  <!-- Tab 导航 -->
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="data">数据管理</button>
+    <button class="tab-btn" data-tab="describe">描述统计</button>
+    <button class="tab-btn" data-tab="probability">概率推理</button>
+    <button class="tab-btn" data-tab="randomness">随机性检验</button>
+    <button class="tab-btn" data-tab="generate">参考号码</button>
+  </nav>
+
+  <main class="container">
+
+    <!-- ============ Tab 1: 数据管理 ============ -->
+    <section id="tab-data" class="tab-panel active">
+      <div class="card">
+        <h2>数据管理</h2>
+        <p class="muted">支持两种来源：上传 CSV 文件，或载入内置模拟数据集。CSV 列格式：
+          <code>期号,开奖日期,前区1,前区2,前区3,前区4,前区5,后区1,后区2</code>，
+          允许 7 个号码挤在一列（空格/逗号分隔），支持 <code>#</code> 开头注释行。</p>
+
+        <div class="btn-row">
+          <button id="btn-sample" class="btn primary">载入内置模拟数据（600 期，非真实开奖记录）</button>
+        </div>
+        <p class="warn-inline">※ 内置数据集由固定随机种子生成的<b>模拟数据</b>，仅用于演示工具能力，<b>非真实开奖记录</b>。</p>
+
+        <hr>
+        <h3>上传 CSV 文件</h3>
+        <div class="btn-row">
+          <input type="file" id="csv-file" accept=".csv">
+          <button id="btn-upload" class="btn">上传并清洗</button>
+        </div>
+
+        <div id="data-error" class="error-text"></div>
+      </div>
+
+      <div class="card" id="report-card" style="display:none">
+        <h2>清洗与校验报告 <span id="report-source" class="muted small"></span></h2>
+        <div id="report-summary" class="stat-grid"></div>
+        <h3>问题明细</h3>
+        <div class="table-wrap">
+          <table class="data-table" id="issues-table">
+            <thead><tr><th>级别</th><th>期号</th><th>规则码</th><th>规则说明</th><th>明细</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="muted" id="issues-empty" style="display:none">无任何问题，全部记录通过校验。</p>
+        <h3>清洗后数据预览（前 5 行）</h3>
+        <div class="table-wrap">
+          <table class="data-table" id="preview-table">
+            <thead><tr><th>期号</th><th>开奖日期</th><th>前区1</th><th>前区2</th><th>前区3</th><th>前区4</th><th>前区5</th><th>后区1</th><th>后区2</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Tab 2: 描述统计 ============ -->
+    <section id="tab-describe" class="tab-panel">
+      <div class="card">
+        <h2>描述性统计</h2>
+        <div class="btn-row">
+          <label>冷热号 Top-N <input type="number" id="desc-topn" min="1" max="20" value="5" class="num-input"></label>
+          <button id="btn-describe" class="btn primary">计算描述统计</button>
+        </div>
+        <p class="muted">统计口径：频率 = 出现次数 / 总期数（前区 35 个号频率之和 = 5，后区 12 个号频率之和 = 2）；
+          理论期望频次：前区单号 = 期数 × 5/35，后区单号 = 期数 × 2/12。</p>
+        <div id="describe-error" class="error-text"></div>
+      </div>
+      <div id="describe-body"></div>
+    </section>
+
+    <!-- ============ Tab 3: 概率推理 ============ -->
+    <section id="tab-probability" class="tab-panel">
+      <div class="card">
+        <h2>概率推理</h2>
+        <div class="btn-row">
+          <button id="btn-probability" class="btn primary">计算概率与期望值</button>
+        </div>
+        <p class="muted">所有概率由超几何分布 <code>P = [C(5,a)·C(30,5-a)/C(35,5)] × [C(2,b)·C(10,2-b)/C(12,2)]</code>
+          精确计算；每个 5+2 组合中奖概率恒为 1/21,425,712。</p>
+        <div id="probability-error" class="error-text"></div>
+      </div>
+      <div id="probability-body"></div>
+    </section>
+
+    <!-- ============ Tab 4: 随机性检验 ============ -->
+    <section id="tab-randomness" class="tab-panel">
+      <div class="card">
+        <h2>随机性检验</h2>
+        <div class="btn-row">
+          <label>蒙特卡洛期数 <input type="number" id="rnd-trials" min="100" max="500000" step="100" value="20000" class="num-input"></label>
+          <label>随机种子 <input type="number" id="rnd-seed" value="20240920" class="num-input"></label>
+          <button id="btn-randomness" class="btn primary">开始检验</button>
+        </div>
+        <p class="muted">卡方拟合优度 + 单号二项检验（Bonferroni / BH-FDR 多重比较校正）+ 蒙特卡洛经验 p 值。
+          显著性水平 α = 0.05。</p>
+        <div id="randomness-error" class="error-text"></div>
+      </div>
+      <div id="randomness-body"></div>
+    </section>
+
+    <!-- ============ Tab 5: 参考号码 ============ -->
+    <section id="tab-generate" class="tab-panel">
+      <div class="card">
+        <h2>参考号码生成</h2>
+        <div class="btn-row">
+          <label>策略
+            <select id="gen-strategy" class="num-input">
+              <option value="both">both（两种策略对比）</option>
+              <option value="hot_weighted">hot_weighted（热号加权）</option>
+              <option value="balanced_profile">balanced_profile（形态匹配）</option>
+            </select>
+          </label>
+          <label>组数 <input type="number" id="gen-count" min="1" max="20" value="5" class="num-input"></label>
+          <label>随机种子 <input type="number" id="gen-seed" value="20240920" class="num-input"></label>
+          <button id="btn-generate" class="btn primary">生成参考号码</button>
+        </div>
+        <p class="warn-inline"><b>统计依据不改变任何组合的中奖概率（恒为 1/21,425,712）。</b>
+          以下号码仅为“符合历史统计形态的示例”，不具备任何预测能力，不得作为投注依据。</p>
+        <div id="generate-error" class="error-text"></div>
+      </div>
+      <div id="generate-body"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>本工具为本地统计分析工具：开奖为独立随机事件，任何统计分析都不能预测未来结果。</p>
+    <p>理性购彩提示：彩票是娱乐消费而非投资；量力而行；未成年人不得购彩；如感到购彩行为失控，请及时寻求帮助。</p>
+  </footer>
+
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 运行期产物
+*.log
+_build/*.json
+_build/*.html
+_build/*.png
+!assets/*.png
+
+# 本机/编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# 数据（仓库已提供 sample_data_simulated.csv 与 dirty_demo.csv；
+# 自己的开奖数据不要提交）
+/data/
+*.user.csv

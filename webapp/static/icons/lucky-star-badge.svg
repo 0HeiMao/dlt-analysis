@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="幸运星">
+  <title>幸运星 · 徽章</title>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="#EF9F27"/>
+  <g transform="translate(64 64) scale(0.6) translate(-64 -64)">
+    <path d="M64 6 C68 38 90 60 122 64 C90 68 68 90 64 122 C60 90 38 68 6 64 C38 60 60 38 64 6 Z" fill="#FFFFFF"/>
+    <path d="M100 86 C101.5 94 106 98.5 114 100 C106 101.5 101.5 106 100 114 C98.5 106 94 101.5 86 100 C94 98.5 98.5 94 100 86 Z" fill="#FFFFFF" opacity="0.7"/>
+  </g>
+</svg>

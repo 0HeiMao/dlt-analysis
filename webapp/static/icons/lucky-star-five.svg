@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="幸运星">
+  <title>幸运星 · 五角</title>
+  <path d="M64 12 L76.7 46.5 L113.5 47.9 L84.5 70.7 L94.6 106.1 L64 85.6 L33.4 106.1 L43.5 70.7 L14.5 47.9 L51.3 46.5 Z" fill="#FAC775" stroke="#BA7517" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M104 30 C105 35.5 108.5 39 114 40 C108.5 41 105 44.5 104 50 C103 44.5 99.5 41 94 40 C99.5 39 103 35.5 104 30 Z" fill="#EF9F27"/>
+  <path d="M30 89 C30.7 92.5 32.5 94.3 36 95 C32.5 95.7 30.7 97.5 30 101 C29.3 97.5 27.5 95.7 24 95 C27.5 94.3 29.3 92.5 30 89 Z" fill="#EF9F27"/>
+</svg>
