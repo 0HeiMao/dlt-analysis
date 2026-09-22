@@ -12,6 +12,14 @@ _build/*.html
 _build/*.png
 !assets/*.png
 
+# 本地调试 / QA 过程产物（不入库）
+webapp/qa_*
+webapp/fix*
+webapp/server_log.txt
+webapp/server_stop.txt
+webapp/garbage_gbk.csv
+webapp/huge_field.csv
+
 # 本机/编辑器
 .DS_Store
 Thumbs.db
